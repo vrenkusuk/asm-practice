@@ -1,3 +1,3 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/bash
 nasm -f elf32 practice5.asm -o practice5.o
+echo "Compiled practice5.asm -> practice5.o"

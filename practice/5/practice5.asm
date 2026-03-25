@@ -1,36 +1,56 @@
 ; practice5.asm
-; I/O: int 80h
-; blocks: I/O, parse, math/logic, loops, memory
+section .data
+    input db 12 dup(0)
+    output db 12 dup(0)
+    newline db 10
 
-BITS 32
-GLOBAL _start
+section .text
+global _start
 
-SECTION .data
-prompt db "practice5: see README.md", 10
-prompt_len equ $-prompt
-
-SECTION .bss
-buf resb 256
-
-SECTION .text
 _start:
-    ; I/O: write prompt
-    mov eax, 4          ; sys_write
-    mov ebx, 1          ; stdout
-    mov ecx, prompt
-    mov edx, prompt_len
+    ; =========================
+    ; I/O: читання числа
+    ; =========================
+    mov eax, 3
+    mov ebx, 0
+    mov ecx, input
+    mov edx, 12
     int 0x80
 
-    ; I/O: read line (optional in skeleton)
-    mov eax, 3          ; sys_read
-    mov ebx, 0          ; stdin
-    mov ecx, buf
-    mov edx, 255
-    int 0x80
+    ; =========================
+    ; parse: ASCII -> int
+    ; =========================
+    mov esi, input
+    xor eax, eax
+parse_loop:
+    mov bl, [esi]
+    cmp bl, 10
+    je parse_done
+    sub bl, '0'
+    mov ecx, 10
+    mul ecx
+    add eax, ebx
+    inc esi
+    jmp parse_loop
+parse_done:
 
-    ; logic: TODO implement task logic according to README.md
+    mov ebx, eax   ; копія числа для len
+    xor ecx, ecx   ; sumDigits
+    xor edx, edx   ; len counter
 
-    ; exit
-    mov eax, 1          ; sys_exit
-    xor ebx, ebx
+sum_len_loop:
+    mov edx, 0
+    mov edi, 10
+    div edi
+    add ecx, edx    ; сума цифр
+    inc edx         ; для лічильника
+    mov eax, eax
+    cmp eax, 0
+    jne sum_len_loop
+
+    ; =========================
+    ; I/O: sys_exit
+    ; =========================
+    mov eax,1
+    xor ebx,ebx
     int 0x80
